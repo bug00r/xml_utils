@@ -26,7 +26,7 @@ typedef struct {
     const char          **xpath_params; //optional (NULL)
     const char          * output;       //optional (NULL)
     FILE                *profile;       //optional (NULL)
-    dl_list_t           *errors;        //automatic usage
+    DlList           *errors;        //automatic usage
 } xslt_ctx_t;
 
 

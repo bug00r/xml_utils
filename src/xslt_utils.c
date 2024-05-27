@@ -5,7 +5,7 @@ _xslt_add_error_to_list(void *ctx, const char *msg, ...) {
 
 	va_list vl;
 	va_start(vl, msg);
-    dl_list_append( (dl_list_t*)ctx, format_string_va_new(msg, vl));
+    dl_list_append( (DlList*)ctx, format_string_va_new(msg, vl));
 	va_end(vl);
 
 }
