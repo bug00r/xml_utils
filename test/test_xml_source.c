@@ -28,9 +28,9 @@ EXTERN_BLOB(zip_resource, 7z);
 static void test_xml_source() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 	
-	archive_resource_t* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
 
-	xml_source_t* result = xml_source_from_resname(ar, "talents");
+	XmlSource* result = xml_source_from_resname(ar, "talents");
 	
 	assert(result != NULL);
 	assert(result->data.resfile != NULL);
@@ -57,7 +57,7 @@ static void test_xml_source() {
 
 	DEBUG_LOG("## create by resource file object\n");
 
-	resource_search_result_t* res_result = archive_resource_search(ar, ".*talents.xml");
+	ResourceSearchResult* res_result = archive_resource_search(ar, ".*talents.xml");
 
 	result = xml_source_from_resfile(res_result->files[0]);
 

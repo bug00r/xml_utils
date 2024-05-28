@@ -1,22 +1,22 @@
 #include "xml_utils.h"
 
-static xml_ctx_t* __xml_ctx_create(const xml_source_t *xml_src, xmlDocPtr doc) {
-    xml_ctx_t temp = {xml_src, doc, {XML_CTX_SUCCESS, XML_CTX_NO_REASON}};
-    xml_ctx_t * new_ctx = malloc(sizeof(xml_ctx_t));
-    memcpy(new_ctx, &temp, sizeof(xml_ctx_t));
+static XmlCtx* __xml_ctx_create(const XmlSource *xml_src, xmlDocPtr doc) {
+    XmlCtx temp = {xml_src, doc, {XML_CTX_SUCCESS, XML_CTX_NO_REASON}};
+    XmlCtx * new_ctx = malloc(sizeof(XmlCtx));
+    memcpy(new_ctx, &temp, sizeof(XmlCtx));
     return new_ctx;
 }
 
-static void __xml_ctx_set_state(xml_ctx_t * ctx,  xml_ctx_state_no_t state_no, xml_ctx_state_reason_t  reason ) {
+static void __xml_ctx_set_state(XmlCtx * ctx,  XmlCtxStateNo state_no, XmlCtxStateReason  reason ) {
     ctx->state.state_no = state_no;
     ctx->state.reason   = reason;
 }
 
-static void __xml_ctx_set_state_ptr(xml_ctx_t * ctx,  xml_ctx_state_no_t *state_no, xml_ctx_state_reason_t *reason ) {
+static void __xml_ctx_set_state_ptr(XmlCtx * ctx,  XmlCtxStateNo *state_no, XmlCtxStateReason *reason ) {
     __xml_ctx_set_state(ctx, *state_no, *reason);
 }
 
-static bool __xml_ctx_valid( xml_ctx_t *ctx ) {
+static bool __xml_ctx_valid( XmlCtx *ctx ) {
     bool isvalid = true;
 
     if ( ctx == NULL || ctx->doc == NULL) {
@@ -32,7 +32,7 @@ static bool __xml_ctx_valid( xml_ctx_t *ctx ) {
     return isvalid;
 }
 
-static bool __xml_ctx_xpath_valid( xml_ctx_t *ctx, const char *xpath) {
+static bool __xml_ctx_xpath_valid( XmlCtx *ctx, const char *xpath) {
     bool isvalid = true;
 
     if ( xpath == NULL || (strlen(xpath) == 0) ) {
@@ -104,18 +104,18 @@ static void __xml_ctx_content_xpptr(xmlXPathObjectPtr node, const unsigned char 
 #endif
 
 
-xml_ctx_t* xml_ctx_new_empty() {
+XmlCtx* xml_ctx_new_empty() {
 
     xmlDocPtr doc = xmlNewDoc((xmlChar *)"1.0");
 
-    xml_ctx_t *new_ctx = __xml_ctx_create(NULL, doc);
+    XmlCtx *new_ctx = __xml_ctx_create(NULL, doc);
     __xml_ctx_set_state(new_ctx, XML_CTX_SUCCESS, XML_CTX_READ_AND_PARSE);
 
     return new_ctx;
 }
 
-xml_ctx_t* xml_ctx_new_empty_root_name(const char* rootname) {
-    xml_ctx_t* new_ctx = xml_ctx_new_empty();
+XmlCtx* xml_ctx_new_empty_root_name(const char* rootname) {
+    XmlCtx* new_ctx = xml_ctx_new_empty();
 
     if(rootname && strlen(rootname) > 0) {
         xmlNodePtr newroot = xmlNewNode(NULL, (xmlChar *) rootname);
@@ -126,12 +126,12 @@ xml_ctx_t* xml_ctx_new_empty_root_name(const char* rootname) {
 }
 
 
-xml_ctx_t* xml_ctx_new(const xml_source_t *xml_src) {
+XmlCtx* xml_ctx_new(const XmlSource *xml_src) {
 
     xmlDocPtr doc = NULL;
 
-    xml_ctx_state_no_t state_no = XML_CTX_SUCCESS; 
-    xml_ctx_state_reason_t reason = XML_CTX_READ_AND_PARSE;
+    XmlCtxStateNo state_no = XML_CTX_SUCCESS; 
+    XmlCtxStateReason reason = XML_CTX_READ_AND_PARSE;
 
     if ( xml_src != NULL && xml_src->src_data != NULL && *xml_src->src_size > 0 ) {
 
@@ -147,25 +147,25 @@ xml_ctx_t* xml_ctx_new(const xml_source_t *xml_src) {
         doc = NULL;
     }
 
-    xml_ctx_t *new_ctx = __xml_ctx_create(xml_src, doc);
+    XmlCtx *new_ctx = __xml_ctx_create(xml_src, doc);
     __xml_ctx_set_state_ptr(new_ctx, &state_no, &reason);
 
     return new_ctx;
 }
 
-xml_ctx_t* xml_ctx_new_node(const xmlNodePtr rootnode) {
-    xml_ctx_t *new_ctx = xml_ctx_new_empty();
+XmlCtx* xml_ctx_new_node(const xmlNodePtr rootnode) {
+    XmlCtx *new_ctx = xml_ctx_new_empty();
     xmlNodePtr copyroot = xmlCopyNode(rootnode, 1);
     xmlDocSetRootElement(new_ctx->doc ,copyroot);
     return new_ctx;
 }
 
-xml_ctx_t* xml_ctx_new_file(const char *filename) 
+XmlCtx* xml_ctx_new_file(const char *filename) 
 {
-    xml_ctx_t *new_ctx = xml_ctx_new_empty();
+    XmlCtx *new_ctx = xml_ctx_new_empty();
     
-    xml_ctx_state_no_t state_no = XML_CTX_SUCCESS; 
-    xml_ctx_state_reason_t reason = XML_CTX_READ_AND_PARSE;
+    XmlCtxStateNo state_no = XML_CTX_SUCCESS; 
+    XmlCtxStateReason reason = XML_CTX_READ_AND_PARSE;
 
     if (u_file_exists(filename) && (xmlGetLastError() == NULL))
     {
@@ -183,10 +183,10 @@ xml_ctx_t* xml_ctx_new_file(const char *filename)
     return new_ctx;
 }
 
-void xml_ctx_save_file(const xml_ctx_t *ctx, const char *filename) {
+void xml_ctx_save_file(const XmlCtx *ctx, const char *filename) {
 
-    xml_ctx_state_no_t state_no = XML_CTX_SUCCESS; 
-    xml_ctx_state_reason_t reason = XML_CTX_READ_AND_PARSE; 
+    XmlCtxStateNo state_no = XML_CTX_SUCCESS; 
+    XmlCtxStateReason reason = XML_CTX_READ_AND_PARSE; 
 
     if (ctx != NULL && ctx->doc != NULL && filename != NULL && ( strlen(filename) > 0 )) {
 
@@ -203,14 +203,14 @@ void xml_ctx_save_file(const xml_ctx_t *ctx, const char *filename) {
 
     }
 
-    __xml_ctx_set_state_ptr((xml_ctx_t *)ctx, &state_no, &reason);
+    __xml_ctx_set_state_ptr((XmlCtx *)ctx, &state_no, &reason);
 
 }
 
-void free_xml_ctx(xml_ctx_t **ctx) {
+void free_xml_ctx(XmlCtx **ctx) {
     
     if ( ctx != NULL && *ctx != NULL ) {
-        xml_ctx_t *todelete_ctx = *ctx;
+        XmlCtx *todelete_ctx = *ctx;
         
         if (todelete_ctx->doc) {
             xmlDocGetRootElement(todelete_ctx->doc);
@@ -221,9 +221,9 @@ void free_xml_ctx(xml_ctx_t **ctx) {
         *ctx = NULL;
     }
 }
-void free_xml_ctx_ptr(xml_ctx_t *ctx) {
+void free_xml_ctx_ptr(XmlCtx *ctx) {
     if ( ctx != NULL ) {
-        xml_ctx_t *todelete_ctx = ctx;
+        XmlCtx *todelete_ctx = ctx;
         
         if (todelete_ctx->doc) {
             xmlDocGetRootElement(todelete_ctx->doc);
@@ -234,11 +234,11 @@ void free_xml_ctx_ptr(xml_ctx_t *ctx) {
     }
 }
 
-void free_xml_ctx_src(xml_ctx_t **ctx) {
+void free_xml_ctx_src(XmlCtx **ctx) {
     if ( ctx != NULL && *ctx != NULL ) {
-        xml_ctx_t *todelete_ctx = *ctx;
+        XmlCtx *todelete_ctx = *ctx;
 
-        xml_source_t * _src = (xml_source_t*)todelete_ctx->src;
+        XmlSource * _src = (XmlSource*)todelete_ctx->src;
 
         free_xml_ctx(ctx);
 
@@ -248,7 +248,7 @@ void free_xml_ctx_src(xml_ctx_t **ctx) {
     }
 }
 
-xmlXPathObjectPtr xml_ctx_xpath( const xml_ctx_t *ctx, const char *xpath) {
+xmlXPathObjectPtr xml_ctx_xpath( const XmlCtx *ctx, const char *xpath) {
 
     xmlXPathObjectPtr result = NULL;
 
@@ -273,7 +273,7 @@ xmlXPathObjectPtr xml_ctx_xpath( const xml_ctx_t *ctx, const char *xpath) {
 }
 
 
-xmlXPathObjectPtr xml_ctx_xpath_format( const xml_ctx_t *ctx, const char *xpath_format, ...) {
+xmlXPathObjectPtr xml_ctx_xpath_format( const XmlCtx *ctx, const char *xpath_format, ...) {
     
     va_list args;
     va_start(args, xpath_format);
@@ -291,7 +291,7 @@ xmlXPathObjectPtr xml_ctx_xpath_format( const xml_ctx_t *ctx, const char *xpath_
     return result;
 }
 
-xmlXPathObjectPtr xml_ctx_xpath_format_va( const xml_ctx_t *ctx, const char *xpath_format, va_list argptr) {
+xmlXPathObjectPtr xml_ctx_xpath_format_va( const XmlCtx *ctx, const char *xpath_format, va_list argptr) {
     
     char *gen_xpath = format_string_va_new(xpath_format, argptr);
     
@@ -306,7 +306,7 @@ xmlXPathObjectPtr xml_ctx_xpath_format_va( const xml_ctx_t *ctx, const char *xpa
     return result;
 }
 
-void xml_ctx_nodes_add_xpath(xml_ctx_t *src, const char *src_xpath, xml_ctx_t *dst, const char *dst_xpath) {
+void xml_ctx_nodes_add_xpath(XmlCtx *src, const char *src_xpath, XmlCtx *dst, const char *dst_xpath) {
     
     if ( !__xml_ctx_valid(src) || !__xml_ctx_valid(dst) ) return;
     
@@ -398,7 +398,7 @@ void xml_ctx_nodes_add_note_xpres(xmlNodePtr src_node, xmlXPathObjectPtr dst_res
 
 }
 
-void xml_ctx_nodes_add_node_xpath(xmlNodePtr src_node, xml_ctx_t *dst, const char *dst_xpath) {
+void xml_ctx_nodes_add_node_xpath(xmlNodePtr src_node, XmlCtx *dst, const char *dst_xpath) {
 
     xmlXPathObjectPtr target_node_result = xml_ctx_xpath(dst, dst_xpath);
 
@@ -407,7 +407,7 @@ void xml_ctx_nodes_add_node_xpath(xmlNodePtr src_node, xml_ctx_t *dst, const cha
     xmlXPathFreeObject(target_node_result);
 }
 
-void xml_ctx_nodes_add_node_xpath_format(xmlNodePtr src_node, xml_ctx_t *dst, const char *dst_xpath, ...) {
+void xml_ctx_nodes_add_node_xpath_format(xmlNodePtr src_node, XmlCtx *dst, const char *dst_xpath, ...) {
 
     va_list args;
     va_start(args, dst_xpath);
@@ -433,7 +433,7 @@ void xml_ctx_rem_nodes_xpres(xmlXPathObjectPtr xpres) {
 }
 
 
-void xml_ctx_remove(xml_ctx_t *ctx, const char *xpath) {
+void xml_ctx_remove(XmlCtx *ctx, const char *xpath) {
 
     xmlXPathObjectPtr found = xml_ctx_xpath_format(ctx, xpath);
 
@@ -442,7 +442,7 @@ void xml_ctx_remove(xml_ctx_t *ctx, const char *xpath) {
     xmlXPathFreeObject(found);
 }
 
-void xml_ctx_remove_format(xml_ctx_t *ctx, const char *xpath_format, ...) {
+void xml_ctx_remove_format(XmlCtx *ctx, const char *xpath_format, ...) {
 
     va_list args;
     va_start(args, xpath_format);
@@ -454,7 +454,7 @@ void xml_ctx_remove_format(xml_ctx_t *ctx, const char *xpath_format, ...) {
     xmlXPathFreeObject(found);
 }
 
-bool xml_ctx_exist(xml_ctx_t *ctx, const char *xpath) {
+bool xml_ctx_exist(XmlCtx *ctx, const char *xpath) {
     xmlXPathObjectPtr found = xml_ctx_xpath(ctx, xpath);
 
     bool exist = xml_xpath_has_result(found);
@@ -464,7 +464,7 @@ bool xml_ctx_exist(xml_ctx_t *ctx, const char *xpath) {
     return exist;
 }
 
-bool xml_ctx_exist_format(xml_ctx_t *ctx, const char *xpath_format, ...) {
+bool xml_ctx_exist_format(XmlCtx *ctx, const char *xpath_format, ...) {
 
     va_list args;
     va_start(args, xpath_format);
@@ -483,7 +483,7 @@ bool xml_xpath_has_result(xmlXPathObjectPtr xpathobj) {
     return ( xpathobj != NULL && xpathobj->type == XPATH_NODESET && xpathobj->nodesetval && (xpathobj->nodesetval->nodeNr > 0 ));
 }
 
-void xml_ctx_set_attr_str_xpath(xml_ctx_t *ctx, const unsigned char *value, const char *xpath) {
+void xml_ctx_set_attr_str_xpath(XmlCtx *ctx, const unsigned char *value, const char *xpath) {
     
     xmlXPathObjectPtr found = xml_ctx_xpath(ctx, xpath);
 
@@ -493,7 +493,7 @@ void xml_ctx_set_attr_str_xpath(xml_ctx_t *ctx, const unsigned char *value, cons
 
 }
 
-void xml_ctx_set_attr_str_xpath_format(xml_ctx_t *ctx, const unsigned char *value, const char *xpath_format, ...) {
+void xml_ctx_set_attr_str_xpath_format(XmlCtx *ctx, const unsigned char *value, const char *xpath_format, ...) {
     
     va_list args;
     va_start(args, xpath_format);
@@ -507,7 +507,7 @@ void xml_ctx_set_attr_str_xpath_format(xml_ctx_t *ctx, const unsigned char *valu
     xmlXPathFreeObject(found);
 }
 
-void xml_ctx_set_content_xpath(xml_ctx_t *ctx, const unsigned char *value, const char *xpath) {
+void xml_ctx_set_content_xpath(XmlCtx *ctx, const unsigned char *value, const char *xpath) {
     xmlXPathObjectPtr found = xml_ctx_xpath(ctx, xpath);
 
     __xml_ctx_content_xpptr(found, value);
@@ -515,7 +515,7 @@ void xml_ctx_set_content_xpath(xml_ctx_t *ctx, const unsigned char *value, const
     xmlXPathFreeObject(found);
 }
 
-void xml_ctx_set_content_xpath_format(xml_ctx_t *ctx, const unsigned char *value, const char *xpath_format, ...) {
+void xml_ctx_set_content_xpath_format(XmlCtx *ctx, const unsigned char *value, const char *xpath_format, ...) {
     va_list args;
     va_start(args, xpath_format);
 
@@ -528,7 +528,7 @@ void xml_ctx_set_content_xpath_format(xml_ctx_t *ctx, const unsigned char *value
     xmlXPathFreeObject(found);
 }
 
-xmlChar * xml_ctx_get_attr(xml_ctx_t *ctx, const unsigned char *attr_name, const char *xpath) {
+xmlChar * xml_ctx_get_attr(XmlCtx *ctx, const unsigned char *attr_name, const char *xpath) {
     
     xmlChar *value = NULL;
     
@@ -548,7 +548,7 @@ xmlChar * xml_ctx_get_attr(xml_ctx_t *ctx, const unsigned char *attr_name, const
 
 }
 
-xmlChar * xml_ctx_get_attr_format(xml_ctx_t *ctx, const unsigned char *attr_name, const char *xpath_format, ...) {
+xmlChar * xml_ctx_get_attr_format(XmlCtx *ctx, const unsigned char *attr_name, const char *xpath_format, ...) {
     
     xmlChar *value = NULL;
     
@@ -604,7 +604,7 @@ int xml_ctx_strtof(xmlChar *str, float *result)
     return parseError;
 }
 
-int xml_ctx_xpath_tod(xml_ctx_t *ctx, double *result, const char *xpath)
+int xml_ctx_xpath_tod(XmlCtx *ctx, double *result, const char *xpath)
 {
     int errNo = 1;
     if ( ctx != NULL )
@@ -623,7 +623,7 @@ int xml_ctx_xpath_tod(xml_ctx_t *ctx, double *result, const char *xpath)
     return errNo;
 }
 
-int xml_ctx_xpath_tod_format_va(xml_ctx_t *ctx, double *result, const char *xpath_format, va_list args)
+int xml_ctx_xpath_tod_format_va(XmlCtx *ctx, double *result, const char *xpath_format, va_list args)
 {
     int errNo = 1;
     if ( ctx != NULL )
@@ -642,7 +642,7 @@ int xml_ctx_xpath_tod_format_va(xml_ctx_t *ctx, double *result, const char *xpat
     return errNo;
 }
 
-int xml_ctx_xpath_tol(xml_ctx_t *ctx, long *result, const char *xpath)
+int xml_ctx_xpath_tol(XmlCtx *ctx, long *result, const char *xpath)
 {
     double dResult;
     int errNo = xml_ctx_xpath_tod(ctx, &dResult, xpath);
@@ -655,7 +655,7 @@ int xml_ctx_xpath_tol(xml_ctx_t *ctx, long *result, const char *xpath)
     return errNo;
 }
 
-int xml_ctx_xpath_tol_format(xml_ctx_t *ctx, long *result, const char *xpath_format, ...)
+int xml_ctx_xpath_tol_format(XmlCtx *ctx, long *result, const char *xpath_format, ...)
 {
     double dResult;
 
@@ -674,7 +674,7 @@ int xml_ctx_xpath_tol_format(xml_ctx_t *ctx, long *result, const char *xpath_for
     return errNo;
 }
 
-int xml_ctx_xpath_tof(xml_ctx_t *ctx, float *result, const char *xpath)
+int xml_ctx_xpath_tof(XmlCtx *ctx, float *result, const char *xpath)
 {
     double dResult;
     int errNo = xml_ctx_xpath_tod(ctx, &dResult, xpath);
@@ -687,7 +687,7 @@ int xml_ctx_xpath_tof(xml_ctx_t *ctx, float *result, const char *xpath)
     return errNo;
 }
 
-int xml_ctx_xpath_tof_format(xml_ctx_t *ctx, float *result, const char *xpath_format, ...)
+int xml_ctx_xpath_tof_format(XmlCtx *ctx, float *result, const char *xpath_format, ...)
 {
     double dResult;
 

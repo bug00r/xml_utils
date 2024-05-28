@@ -3,7 +3,7 @@
 
 #if 0
     Concept global, just for remembering target: 
-        - Utils have to work with xml sources. So we need xml_source_t with different loading interfaces. At first from memory or memory Wrapper Pattern
+        - Utils have to work with xml sources. So we need XmlSource with different loading interfaces. At first from memory or memory Wrapper Pattern
           in this case from resource too.
         - the source will be used inside an xml_context_t. The context will load the libxml DocPtr from source.
         - an xml_context_t can be used inside of services. We want to have xml_services or interfaces at first for:
@@ -33,7 +33,7 @@ typedef enum _xml_ctx_state_no {
     XML_CTX_SUCCESS,    /* operation was successfully */
     XML_CTX_ERROR,      /* operation causes error */
     XML_CTX_NO_STATE    /* operation does not set state because without a reson */
-} xml_ctx_state_no_t;
+} XmlCtxStateNo;
 
 typedef enum _xml_ctx_state_reason {
     XML_CTX_NO_REASON,          /* reason for no reason oO */
@@ -41,18 +41,18 @@ typedef enum _xml_ctx_state_reason {
     XML_CTX_SRC_INVALID,        /* for src context is invalid, like missing src or doc pointer */
     XML_CTX_XPATH_INVALID,      /* for src xpath is invalid(NULL) */
     XML_CTX_ADD
-} xml_ctx_state_reason_t;
+} XmlCtxStateReason;
 
 typedef struct {
-    xml_ctx_state_no_t      state_no;
-    xml_ctx_state_reason_t  reason;
-} xml_ctx_state_t;
+    XmlCtxStateNo      state_no;
+    XmlCtxStateReason  reason;
+} XmlCtxState;
 
 typedef struct {
-    const xml_source_t * const src; /* used xml source */
+    const XmlSource * const src; /* used xml source */
     xmlDocPtr  doc;                 /* parsed xml doc from given source */
-    xml_ctx_state_t state;          /* state of the last operation */
-} xml_ctx_t;
+    XmlCtxState state;          /* state of the last operation */
+} XmlCtx;
 
 /*
 
@@ -69,7 +69,7 @@ typedef struct {
     returns new xml context in every case with given state
 
 */
-xml_ctx_t* xml_ctx_new(const xml_source_t *xml_src);
+XmlCtx* xml_ctx_new(const XmlSource *xml_src);
 
 /*
 
@@ -79,7 +79,7 @@ xml_ctx_t* xml_ctx_new(const xml_source_t *xml_src);
     returns new xml context in every case with given state
 
 */
-xml_ctx_t* xml_ctx_new_empty();
+XmlCtx* xml_ctx_new_empty();
 
 /*
 
@@ -95,7 +95,7 @@ xml_ctx_t* xml_ctx_new_empty();
     returns new xml context in every case with given state
 
 */
-xml_ctx_t* xml_ctx_new_empty_root_name(const char* rootname);
+XmlCtx* xml_ctx_new_empty_root_name(const char* rootname);
 
 /*
 
@@ -112,7 +112,7 @@ xml_ctx_t* xml_ctx_new_empty_root_name(const char* rootname);
     returns new xml context in every case with given state
 
 */
-xml_ctx_t* xml_ctx_new_node(const xmlNodePtr rootnode);
+XmlCtx* xml_ctx_new_node(const xmlNodePtr rootnode);
 
 /*
 
@@ -129,7 +129,7 @@ xml_ctx_t* xml_ctx_new_node(const xmlNodePtr rootnode);
     returns new xml context in every case with given state
 
 */
-xml_ctx_t* xml_ctx_new_file(const char *filename);
+XmlCtx* xml_ctx_new_file(const char *filename);
 
 /*
 
@@ -145,11 +145,11 @@ xml_ctx_t* xml_ctx_new_file(const char *filename);
     returns new xml context in every case with given state
 
 */
-void xml_ctx_save_file(const xml_ctx_t *ctx, const char *filename);
+void xml_ctx_save_file(const XmlCtx *ctx, const char *filename);
 
 /*
 
-    This Function frees the memory from xml_ctx_t and all its given attributes, BUT
+    This Function frees the memory from XmlCtx and all its given attributes, BUT
     not the used xml_xource. You have toe free it extra. This function is useful
     if you want to create a new xml context based on the same source.
 
@@ -164,12 +164,12 @@ void xml_ctx_save_file(const xml_ctx_t *ctx, const char *filename);
     ctx             pointer to xml context pointer
 
 */
-void free_xml_ctx(xml_ctx_t **ctx);
-void free_xml_ctx_ptr(xml_ctx_t *ctx);
+void free_xml_ctx(XmlCtx **ctx);
+void free_xml_ctx_ptr(XmlCtx *ctx);
 
 /*
 
-    This Function frees the memory from xml_ctx_t and all its given attributes AND
+    This Function frees the memory from XmlCtx and all its given attributes AND
     the used xml_xource.
 
     After this Operation the overgiven pointer will set with NULL.
@@ -181,7 +181,7 @@ void free_xml_ctx_ptr(xml_ctx_t *ctx);
     ctx             pointer to xml context pointer
 
 */
-void free_xml_ctx_src(xml_ctx_t **ctx);
+void free_xml_ctx_src(XmlCtx **ctx);
 
 /*
 
@@ -196,7 +196,7 @@ void free_xml_ctx_src(xml_ctx_t **ctx);
 
     returns a xmlXPathObjectPtr with xpath result
 */
-xmlXPathObjectPtr xml_ctx_xpath( const xml_ctx_t *ctx, const char *xpath);
+xmlXPathObjectPtr xml_ctx_xpath( const XmlCtx *ctx, const char *xpath);
 
 /*
 
@@ -212,8 +212,8 @@ xmlXPathObjectPtr xml_ctx_xpath( const xml_ctx_t *ctx, const char *xpath);
 
     returns a xmlXPathObjectPtr with xpath result
 */
-xmlXPathObjectPtr xml_ctx_xpath_format( const xml_ctx_t *ctx, const char *xpath_format, ...);
-xmlXPathObjectPtr xml_ctx_xpath_format_va( const xml_ctx_t *ctx, const char *xpath_format, va_list argptr);
+xmlXPathObjectPtr xml_ctx_xpath_format( const XmlCtx *ctx, const char *xpath_format, ...);
+xmlXPathObjectPtr xml_ctx_xpath_format_va( const XmlCtx *ctx, const char *xpath_format, va_list argptr);
 
 /*
 
@@ -236,37 +236,37 @@ xmlXPathObjectPtr xml_ctx_xpath_format_va( const xml_ctx_t *ctx, const char *xpa
     dst_xpath       destination context used xpath expression
 
 */
-void xml_ctx_nodes_add_xpath(xml_ctx_t *src, const char *src_xpath, xml_ctx_t *dst, const char *dst_xpath);
-void xml_ctx_nodes_add_node_xpath(xmlNodePtr src_node, xml_ctx_t *dst, const char *dst_xpath);
-void xml_ctx_nodes_add_node_xpath_format(xmlNodePtr src_node, xml_ctx_t *dst, const char *dst_xpath, ...);
+void xml_ctx_nodes_add_xpath(XmlCtx *src, const char *src_xpath, XmlCtx *dst, const char *dst_xpath);
+void xml_ctx_nodes_add_node_xpath(xmlNodePtr src_node, XmlCtx *dst, const char *dst_xpath);
+void xml_ctx_nodes_add_node_xpath_format(xmlNodePtr src_node, XmlCtx *dst, const char *dst_xpath, ...);
 void xml_ctx_nodes_add_note_xpres(xmlNodePtr src_node, xmlXPathObjectPtr dst_result);
 
 void xml_ctx_rem_nodes_xpres(xmlXPathObjectPtr xpres);
-void xml_ctx_remove(xml_ctx_t *ctx, const char *xpath);
-void xml_ctx_remove_format(xml_ctx_t *ctx, const char *xpath_format, ...);
+void xml_ctx_remove(XmlCtx *ctx, const char *xpath);
+void xml_ctx_remove_format(XmlCtx *ctx, const char *xpath_format, ...);
 
-bool xml_ctx_exist(xml_ctx_t *ctx, const char *xpath);
-bool xml_ctx_exist_format(xml_ctx_t *ctx, const char *xpath_format, ...);
+bool xml_ctx_exist(XmlCtx *ctx, const char *xpath);
+bool xml_ctx_exist_format(XmlCtx *ctx, const char *xpath_format, ...);
 
 bool xml_xpath_has_result(xmlXPathObjectPtr xpathobj);
 
-void xml_ctx_set_attr_str_xpath(xml_ctx_t *ctx, const unsigned char *value, const char *xpath);
-void xml_ctx_set_attr_str_xpath_format(xml_ctx_t *ctx, const unsigned char *value, const char *xpath_format, ...);
+void xml_ctx_set_attr_str_xpath(XmlCtx *ctx, const unsigned char *value, const char *xpath);
+void xml_ctx_set_attr_str_xpath_format(XmlCtx *ctx, const unsigned char *value, const char *xpath_format, ...);
 
-void xml_ctx_set_content_xpath(xml_ctx_t *ctx, const unsigned char *value, const char *xpath);
-void xml_ctx_set_content_xpath_format(xml_ctx_t *ctx, const unsigned char *value, const char *xpath_format, ...);
+void xml_ctx_set_content_xpath(XmlCtx *ctx, const unsigned char *value, const char *xpath);
+void xml_ctx_set_content_xpath_format(XmlCtx *ctx, const unsigned char *value, const char *xpath_format, ...);
 
-xmlChar * xml_ctx_get_attr(xml_ctx_t *ctx, const unsigned char *attr_name, const char *xpath);
-xmlChar * xml_ctx_get_attr_format(xml_ctx_t *ctx, const unsigned char *attr_name, const char *xpath_format, ...);
+xmlChar * xml_ctx_get_attr(XmlCtx *ctx, const unsigned char *attr_name, const char *xpath);
+xmlChar * xml_ctx_get_attr_format(XmlCtx *ctx, const unsigned char *attr_name, const char *xpath_format, ...);
 
 int xml_ctx_strtof(xmlChar *str, float *result);
 int xml_ctx_strtol(xmlChar *str, long *result);
 
-int xml_ctx_xpath_tod(xml_ctx_t *ctx, double *result, const char *xpath);
-int xml_ctx_xpath_tod_format_va(xml_ctx_t *ctx, double *result, const char *xpath_format, va_list argsPtr);
-int xml_ctx_xpath_tol(xml_ctx_t *ctx, long *result, const char *xpath);
-int xml_ctx_xpath_tol_format(xml_ctx_t *ctx, long *result, const char *xpath_format, ...);
-int xml_ctx_xpath_tof(xml_ctx_t *ctx, float *result, const char *xpath);
-int xml_ctx_xpath_tof_format(xml_ctx_t *ctx, float *result, const char *xpath_format, ...);
+int xml_ctx_xpath_tod(XmlCtx *ctx, double *result, const char *xpath);
+int xml_ctx_xpath_tod_format_va(XmlCtx *ctx, double *result, const char *xpath_format, va_list argsPtr);
+int xml_ctx_xpath_tol(XmlCtx *ctx, long *result, const char *xpath);
+int xml_ctx_xpath_tol_format(XmlCtx *ctx, long *result, const char *xpath_format, ...);
+int xml_ctx_xpath_tof(XmlCtx *ctx, float *result, const char *xpath);
+int xml_ctx_xpath_tof_format(XmlCtx *ctx, float *result, const char *xpath_format, ...);
 
 #endif

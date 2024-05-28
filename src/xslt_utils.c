@@ -25,7 +25,7 @@ _xslt_print_err(void **data) {
 	}
 }
 
-static void _xslt_reset(xslt_ctx_t *ctx) {
+static void _xslt_reset(XsltCtx *ctx) {
 		ctx->output			= NULL;
 		ctx->text_params	= NULL;
 		ctx->xpath_params	= NULL;
@@ -35,14 +35,14 @@ static void _xslt_reset(xslt_ctx_t *ctx) {
 		ctx->errors		= NULL;
 }
 
-void xslt_ctx_init(xslt_ctx_t *ctx) {
+void xslt_ctx_init(XsltCtx *ctx) {
 	if (ctx) {
 		_xslt_reset(ctx);
 		ctx->errors		= dl_list_new();
 	}
 }
 
-void xslt_ctx_cleanup(xslt_ctx_t *ctx) {
+void xslt_ctx_cleanup(XsltCtx *ctx) {
 	if (ctx) {
 		dl_list_each(ctx->errors, _xslt_cleanup_error);
 		dl_list_free(&ctx->errors);
@@ -55,7 +55,7 @@ void xslt_ctx_cleanup(xslt_ctx_t *ctx) {
 	}
 }
 
-xmlDocPtr do_xslt(xslt_ctx_t * ctx) {
+xmlDocPtr do_xslt(XsltCtx * ctx) {
 	xmlDocPtr result = NULL;
 
 	if (ctx) {
@@ -82,6 +82,6 @@ xmlDocPtr do_xslt(xslt_ctx_t * ctx) {
 	return result;
 }
 
-void xslt_print_err(xslt_ctx_t * ctx) {
+void xslt_print_err(XsltCtx * ctx) {
 	dl_list_each(ctx->errors, _xslt_print_err);
 }

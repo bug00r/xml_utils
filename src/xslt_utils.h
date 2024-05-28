@@ -20,19 +20,19 @@
 #include "dl_list.h"
 
 typedef struct {
-    xml_ctx_t           *xml;           //required
+    XmlCtx           *xml;           //required
     xsltStylesheetPtr   stylesheet;     //required (automatic cleaned if exist)
     const char          **text_params;  //optional (NULL)
     const char          **xpath_params; //optional (NULL)
     const char          * output;       //optional (NULL)
     FILE                *profile;       //optional (NULL)
     DlList           *errors;        //automatic usage
-} xslt_ctx_t;
+} XsltCtx;
 
 
-void xslt_ctx_init(xslt_ctx_t *ctx);
-void xslt_ctx_cleanup(xslt_ctx_t *ctx);
-xmlDocPtr do_xslt(xslt_ctx_t * ctx);
-void xslt_print_err(xslt_ctx_t * ctx);
+void xslt_ctx_init(XsltCtx *ctx);
+void xslt_ctx_cleanup(XsltCtx *ctx);
+xmlDocPtr do_xslt(XsltCtx * ctx);
+void xslt_print_err(XsltCtx * ctx);
 
 #endif

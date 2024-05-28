@@ -16,32 +16,32 @@ main()
 
 	DEBUG_LOG(">> Start xslt utils tests:\n");
 	
-	archive_resource_t* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
 
-	xml_source_t* input = xml_source_from_resname(ar, "breeds");
+	XmlSource* input = xml_source_from_resname(ar, "breeds");
 
 	assert(input != NULL);
 
 	DEBUG_LOG_ARGS(">>> file type => %s\n", input->data.resfile->type);
 
-	xml_ctx_t *input_ctx = xml_ctx_new(input);
+	XmlCtx *input_ctx = xml_ctx_new(input);
 
-	xml_source_t* stylesheet = xml_source_from_resname_full(ar, "xslt/","test_breed", "xsl");
+	XmlSource* stylesheet = xml_source_from_resname_full(ar, "xslt/","test_breed", "xsl");
 
 	assert(stylesheet != NULL);
 
 	DEBUG_LOG_ARGS(">>> file type => %s\n", stylesheet->data.resfile->type);
 
 	
-	xml_source_t* talents = xml_source_from_resname(ar, "talents");
+	XmlSource* talents = xml_source_from_resname(ar, "talents");
 
 	assert(talents != NULL);
 
-	xml_ctx_t *talents_ctx = xml_ctx_new(talents);
+	XmlCtx *talents_ctx = xml_ctx_new(talents);
 
-	xml_ctx_t *sheet_ctx = xml_ctx_new(stylesheet);
+	XmlCtx *sheet_ctx = xml_ctx_new(stylesheet);
 
-	xslt_ctx_t xslt_ctx;
+	XsltCtx xslt_ctx;
 	xslt_ctx_init(&xslt_ctx);
 
 	xslt_ctx.xml = input_ctx;
