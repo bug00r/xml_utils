@@ -3,6 +3,8 @@ CFLAGS:=$(_CFLAGS)
 _LDFLAGS:=$(LDFLAGS)
 LDFLAGS:=$(_LDFLAGS)
 
+UNAME_S := $(shell uname -s)
+
 ARFLAGS?=rcs
 PATHSEP?=/
 BUILDROOT?=build
@@ -56,16 +58,27 @@ LDFLAGS+=-L/c/dev/lib$(BIT_SUFFIX) -L./$(BUILDPATH)
 
 
 THIRD_PARTY_LIBS=exslt xslt xml2 
-ARCHIVE_LIBS=archive crypto nettle regex lzma z lz4 bz2 bcrypt zstd iconv
+
 REGEX_LIBS=pcre2-8
 #this c flags is used by regex lib
 CFLAGS+=-DPCRE2_STATIC
 
-OS_LIBS=kernel32 user32 gdi32 winspool comdlg32 advapi32 shell32 uuid ole32 oleaut32 comctl32 ws2_32
+ifeq ($(OS), Windows_NT)
+	OS_LIBS=kernel32 user32 gdi32 winspool comdlg32 advapi32 shell32 uuid ole32 oleaut32 comctl32 ws2_32
+	LDFLAGS+=-static
+	ARCHIVE_LIBS=archive crypto nettle regex lzma z lz4 bz2 bcrypt zstd iconv
+	CFLAGS+=-DOS_WINDOWS
+endif
+
+ifeq ($(UNAME_S), Linux) 
+	LDFLAGS+=-L/usr/lib/x86_64-linux-gnu
+	ARCHIVE_LIBS=archive crypto nettle lzma z lz4 bz2 zstd
+	CFLAGS+=-DOS_LINUX
+endif
 
 USED_LIBS=$(patsubst %,-l%, xml_utils resource pcre2_utils $(REGEX_LIBS)  $(THIRD_PARTY_LIBS) $(ARCHIVE_LIBS) utils dl_list $(OS_LIBS) )
 
-LDFLAGS+=-static $(USED_LIBS)
+LDFLAGS+=$(USED_LIBS)
 
 #wc -c < filename => if needed for after compression size of bytes
 RES=zip_resource

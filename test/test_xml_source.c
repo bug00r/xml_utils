@@ -28,7 +28,7 @@ EXTERN_BLOB(zip_resource, 7z);
 static void test_xml_source() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 	
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 
 	XmlSource* result = xml_source_from_resname(ar, "talents");
 	

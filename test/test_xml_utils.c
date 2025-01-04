@@ -81,7 +81,11 @@ static void test_xml_ctx_empty() {
 static void test_xml_ctx_file() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	XmlCtx *nCtx = xml_ctx_new_file("data\\xml\\basehero.xml");
+	#ifdef OS_WINDOWS
+		XmlCtx *nCtx = xml_ctx_new_file("data\\xml\\basehero.xml");
+	#else
+		XmlCtx *nCtx = xml_ctx_new_file("data/xml/basehero.xml");
+	#endif
 
 	assert(nCtx->src == NULL);
 	assert(nCtx->doc != NULL);
@@ -91,8 +95,12 @@ static void test_xml_ctx_file() {
 		DEBUG_LOG_ARGS(">>> BYTES %i\n", writtenbytes);
 	#endif
 
-	const char *file = "build\\cc\\dumpbasehero.xml";
-
+	#ifdef OS_WINDOWS
+		const char *file = "build\\cc\\dumpbasehero.xml";
+	#else
+		const char *file = "build/cc/dumpbasehero.xml";
+	#endif
+	
 	xml_ctx_save_file(nCtx, file);
 
 	free_xml_ctx_src(&nCtx);
@@ -119,7 +127,7 @@ static void test_xml_ctx_file() {
 static void test_xml_ctx_extra_src() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 	
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 
 	XmlSource* result = xml_source_from_resname(ar, "talents");
 
@@ -164,7 +172,7 @@ static void test_xml_ctx_extra_src() {
 static void test_xml_ctx_incl_src() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 	
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 
 	XmlSource* result = xml_source_from_resname(ar, "talents");
 
@@ -230,7 +238,7 @@ static void __debug_xpath_obj_ptr(xmlXPathObjectPtr xpathObj) {
 static void test_xml_ctx_xpath() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "talents");
 	XmlCtx *nCtx = xml_ctx_new(result);
 
@@ -256,7 +264,7 @@ static void test_xml_ctx_xpath() {
 static void test_xml_ctx_xpath_format() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "talents");
 	XmlCtx *nCtx = xml_ctx_new(result);
 
@@ -284,7 +292,7 @@ static void test_xml_ctx_xpath_format() {
 static void test_xml_ctx_add_node_xpath() {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "basehero");
 	XmlCtx *nCtx = xml_ctx_new(result);
 
@@ -365,7 +373,7 @@ static void test_xml_ctx_xpath_in_range()
 {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 	
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "breeds");
 	XmlCtx *nCtx = xml_ctx_new(result);
 
@@ -458,7 +466,7 @@ static void test_xml_ctx_xpath_to_double()
 {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "basehero");
 	XmlCtx *nCtx = xml_ctx_new(result);
 
@@ -491,7 +499,7 @@ static void test_xml_ctx_xpath_to_long()
 {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "basehero");
 	XmlCtx *nCtx = xml_ctx_new(result);
 
@@ -525,7 +533,7 @@ static void test_xml_ctx_xpath_to_float()
 {
 	DEBUG_LOG_ARGS(">>> %s => %s\n", __FILE__, __func__);
 
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 	XmlSource* result = xml_source_from_resname(ar, "basehero");
 	XmlCtx *nCtx = xml_ctx_new(result);
 

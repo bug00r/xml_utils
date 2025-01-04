@@ -16,7 +16,7 @@ main()
 
 	DEBUG_LOG(">> Start xslt utils tests:\n");
 	
-	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_size);
+	ArchiveResource* ar = archive_resource_memory(&_binary_zip_resource_7z_start, (size_t)&_binary_zip_resource_7z_end - (size_t)&_binary_zip_resource_7z_start);
 
 	XmlSource* input = xml_source_from_resname(ar, "breeds");
 
